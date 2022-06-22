@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\ReviewResource;
 use App\Models\Product;
 use App\Models\Review;
@@ -35,11 +36,16 @@ class ReviewController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreReviewRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function store(StoreReviewRequest $request)
+    public function store(StoreReviewRequest $request, Product $product)
     {
         //
+        $review = new Review($request->all());
+        $product->reviews()->save($review);
+        return response([
+            'date'=>new ReviewResource($review),
+        ], 201);
     }
 
     /**
