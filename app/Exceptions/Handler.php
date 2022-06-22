@@ -4,16 +4,16 @@ namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Routing\Router;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use App\Exceptions\ExceptionTrait;
 
 class Handler extends ExceptionHandler
 {
+    use ExceptionTrait;
     /**
      * A list of exception types with their corresponding custom log levels.
      *
@@ -66,16 +66,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($request->expectsJson()){
-            if ($e instanceof ModelNotFoundException){
-                return response()->json([
-                    'errors'=>'Product Model not Found'
-                ], 404);
-            }
-            if ($e instanceof NotFoundHttpException){
-                return response()->json([
-                    'errors'=>'Incorrect route'
-                ], 404);
-            }
+           return $this->apiException($request, $e);
         }
 
         $e = $this->prepareException($this->mapException($e));
