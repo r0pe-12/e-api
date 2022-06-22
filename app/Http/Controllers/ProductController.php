@@ -10,6 +10,12 @@ use App\Http\Requests\UpdateProductRequest;
 
 class ProductController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth:api')->except('index', 'show');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -35,11 +41,21 @@ class ProductController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreProductRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return string
      */
     public function store(StoreProductRequest $request)
     {
         //
+        $product = new Product;
+        $product->name = $request->post('name');
+        $product->detail = $request->post('description');
+        $product->price = $request->post('price');
+        $product->stock = $request->post('stock');
+        $product->discount = $request->post('discount');
+        $product->save();
+        return response([
+            'data' => new ProductResource($product),
+        ], 201);
     }
 
     /**
@@ -75,6 +91,12 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product)
     {
         //
+        $request['detail'] = $request->post('description');
+        unset($request['description']);
+        $product->update($request->all());
+        return response([
+            'data' => new ProductResource($product),
+        ], 201);
     }
 
     /**
